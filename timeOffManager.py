@@ -11,14 +11,14 @@ connection = sqlite3.connect('timeOffRequests.db')
 cursor = connection.cursor()
 cursor.execute(
     '''CREATE TABLE IF NOT EXISTS timeOffRequests(
-        requestID           int             primary key,
-        employeeID          int(11)         not null,
+        employeeID          int             not null,
         startDate           date            not null,
         endDate             date            not null,
         reason              varchar(255)    not null,
-        approvingManager    int(11)         default null,
+        approvingManager    int             default null,
         approved            boolean         default False
     );''')
+connection.commit()
 
 
 def create_request(data):
@@ -51,7 +51,7 @@ def create_request(data):
     # request is valid - add it to the table
     cursor.execute(
         '''INSERT INTO timeOffRequests (employeeID, startDate, endDate, reason)
-            VALUES (%s, %s, %s, '%s'); '''
+            VALUES (%s, '%s', '%s', '%s'); '''
         % (data[0], data[1], data[2], data[3])
     )
     requestID = cursor.lastrowid
@@ -64,7 +64,15 @@ def get_employee_requests(employeeID):
     Takes an employee ID and returns all active time off requests. Active time
     off requests are requests that start after today's date.
     """
-    pass
+    cursor.execute('''SELECT rowid, startDate, endDate, reason,
+                   approvingManager, approved
+                   FROM timeOffRequests
+                   WHERE employeeID = %s AND startDate >= date('%s')
+                   ORDER BY startDate ASC;'''
+                   % (employeeID, datetime.date.today()))
+    result = cursor.fetchall()
+    connection.commit()
+    socket.send_json(result)
 
 
 def get_all_requests(date=None):
@@ -73,7 +81,22 @@ def get_all_requests(date=None):
     If a date is given, only requests ending before the given date are
     returned.
     """
-    pass
+    if date is None:
+        cursor.execute('''SELECT rowid, *
+                       FROM timeOffRequests
+                       WHERE startDate >= date('%s')
+                       ORDER BY startDate ASC;'''
+                       % datetime.date.today())
+    else:
+        cursor.execute('''SELECT rowid, *
+                       FROM timeOffRequests
+                       WHERE startDate >= date('%s')
+                       AND endDate < date(%s)
+                       ORDER BY startDate ASC;'''
+                       % (datetime.date.today(), date))
+    result = cursor.fetchall()
+    connection.commit()
+    socket.send_json(result)
 
 
 def update_request(data):
@@ -81,7 +104,20 @@ def update_request(data):
     Takes a list of form [requestID: int, managerID: int, approval: Boolean]
     and updates the indicated time-off request.
     """
-    pass
+    requestID = data[0]
+    managerID = data[1]
+    approval = data[2]
+    cursor.execute('''UPDATE timeOffRequests
+                   SET approvingManager = %s, approved = %s
+                   WHERE rowid = %s'''
+                   % (managerID, approval, requestID))
+    connection.commit()
+    if approval:
+        socket.send_json('Time-off request %s approved by manager %s'
+                         % (requestID, managerID))
+    else:
+        socket.send_json('Time-off request %s denied by manager %s'
+                         % (requestID, managerID))
 
 
 def clear_table():
