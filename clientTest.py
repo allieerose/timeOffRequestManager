@@ -30,3 +30,20 @@ socket.send_json(msg)
 # reply
 message = socket.recv_json()
 print('Received reply [ %s ]' % message)
+
+# test create w/ start date > 9 months out
+print('Sending request >9 months out ...')
+msg = ['C', [1, '2025-06-01', '2025-06-02', 'really advanced']]
+socket.send_json(msg)
+# reply
+message = socket.recv_json()
+print('Received reply [ %s ]' % message)
+
+
+# clear data from table
+print('Clearing test data from table ...')
+msg = ['CLEAR ALL DATA']
+socket.send_json(msg)
+# reply/verification
+message = socket.recv_json()
+print('Received reply [ %s ]' % message)

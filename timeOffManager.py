@@ -1,5 +1,6 @@
 import sqlite3
 import zmq
+import datetime
 # import json
 
 context = zmq.Context()
@@ -21,18 +22,33 @@ cursor.execute(
 
 
 def create_request(data):
+    """
+    Adds a time-off request with the given data to the table. If the entry
+    is successful, returns the requestID for the created entry. Otherwise,
+    returns a descriptive message noting reason for failed request.
+    """
+    # check if correct amount of data is included
     if len(data) < 4:
-        socket.send_json('''Request is missing required data. Note that
-        employee ID, start date, end date, and reason for request must be
-        included (in that order) for successful request.''')
+        socket.send_json('Request is missing required data. Note that employee'
+                         ' ID, start date, end date, and reason for request '
+                         'must be included (in that order) for successful '
+                         'request.')
         return
-    elif len(data) > 4:
-        socket.send_json('''Request includes extraneous data. Note that
-        employee ID, start date, end date, and reason for request must be
-        included (in that order) for successful request.''')
+    if len(data) > 4:
+        socket.send_json('Request includes extraneous data. Note that employee'
+                         ' ID, start date, end date, and reason for request '
+                         'must be included (in that order) for successful '
+                         'request.')
         return
-    # elif data[1] (start date) > 9 months from today's date, reject request
-    # else:
+    # check that request starts within the next 9 months
+    today = datetime.datetime.today() + datetime.timedelta()
+    start_date = datetime.datetime.strptime(data[1], '%Y-%m-%d')
+    days_until = (start_date - today).days
+    if days_until > 270:  # 270 days = 9 months
+        socket.send_json('Request is too far in advance. Requests must be '
+                         'within the next 9 months.')
+        return
+    # request is valid - add it to the table
     cursor.execute(
         '''INSERT INTO timeOffRequests (employeeID, startDate, endDate, reason)
             VALUES (%s, %s, %s, '%s'); '''
@@ -72,7 +88,11 @@ def clear_table():
     """
     Clears all time-off requests from the table.
     """
-    pass
+    cursor.execute('''DELETE FROM timeOffRequests;''')
+    connection.commit()
+    cursor.execute('''VACUUM;''')  # clear unused space for data management
+    connection.commit()
+    socket.send_json('Table successfully cleared of all data.')
 
 
 while True:
