@@ -1,5 +1,12 @@
+Manages a small database using Sqlite3 to track time-off requests. Provides options to add requests,
+get all active requests for an employee, get all active requests for all employees (optionally filtered
+by an end-date), update approval status for a request, and clear the table of all entries. 
+Uses ZeroMQ with REP/REQ socket communication, sending and receiving with json packaging. See clientTest file
+for an example of client communication with the timeOffManager. 
+
 Accepted message formats:
 * Note: strings are case-insensitive, including the message-type indicating character
+* Active requests = requests that start on/after today's date (i.e., startDate >= today)
     - Create new time-off request: 
         ['C', [employeeID: int, start_date: 'YYYY-MM-DD' , end_date: 'YYYY-MM-DD', reason: string]]
         ex) ['C', [12345, '2024-02-18', '2024-02-26', 'vacation']]
