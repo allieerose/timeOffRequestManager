@@ -1,7 +1,6 @@
 import sqlite3
 import zmq
 import datetime
-# import json
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
@@ -136,21 +135,16 @@ while True:
     message = socket.recv_json()
     print('Received request: %s' % message)
     msg_type = message[0].upper()  # case-insensitive
-    if msg_type == 'C':
+    if msg_type == 'C':  # add time-off request
         create_request(message[1])
-    elif msg_type == 'E':
-        # employee view time off requests
+    elif msg_type == 'E':  # employee view time-off requests
         get_employee_requests(message[1])
-    elif msg_type == 'M':
-        # manager view time off requests
-        # * could include date filter
+    elif msg_type == 'M':  # manager view time-off requests
         if len(message) == 1:
             get_all_requests()
         else:  # included date filter
             get_all_requests(message[1])
-    elif msg_type == 'U':
-        # update time off request
+    elif msg_type == 'U':  # update time-off request
         update_request(message[1])
-    elif msg_type == 'CLEAR ALL DATA':
-        # clear table
+    elif msg_type == 'CLEAR ALL DATA':  # clear table
         clear_table()
