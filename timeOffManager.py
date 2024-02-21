@@ -110,8 +110,12 @@ def update_request(data):
                    SET approvingManager = %s, approved = %s
                    WHERE rowid = %s'''
                    % (managerID, approval, requestID))
+    success = cursor.rowcount
     connection.commit()
-    if approval:
+    if success == 0:
+        socket.send_json('Approval process failed. Please double-check the '
+                         'given request ID.')
+    elif approval:
         socket.send_json('Time-off request %s approved by manager %s'
                          % (requestID, managerID))
     else:
