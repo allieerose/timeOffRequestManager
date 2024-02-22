@@ -83,13 +83,13 @@ def get_all_requests(date=None):
     if date is None:
         cursor.execute('''SELECT rowid, *
                        FROM timeOffRequests
-                       WHERE startDate >= date('%s')
+                       WHERE endDate >= date('%s')
                        ORDER BY startDate ASC;'''
                        % datetime.date.today())
     else:
         cursor.execute('''SELECT rowid, *
                        FROM timeOffRequests
-                       WHERE startDate >= date('%s')
+                       WHERE endDate >= date('%s')
                        AND endDate < date(%s)
                        ORDER BY startDate ASC;'''
                        % (datetime.date.today(), date))
