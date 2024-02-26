@@ -1,8 +1,9 @@
 Manages a small database using Sqlite3 to track time-off requests. Provides options to add requests,
 get all active requests for an employee, get all active requests for all employees (optionally filtered
 by an end-date), update approval status for a request, and clear the table of all entries. 
-Uses ZeroMQ with REP/REQ socket communication, sending and receiving with json packaging. See clientTest file
-for an example of client communication with the timeOffManager. 
+Uses ZeroMQ with REP/REQ socket communication, sending and receiving with json packaging. 
+Requests are sent with send_json() and replies are retrieved with recv_json(). See below for an example.
+
 
 ## Accepted message formats:
 * Note: strings are case-insensitive, including the message-type indicating character
@@ -28,7 +29,7 @@ for an example of client communication with the timeOffManager.
         ['CLEAR ALL DATA']
         * This clears the database. Included for ease of testing.
 
-## Example request:
+## Example request/response retrieval:
 ```
 import zmq
 # establish socket connection
