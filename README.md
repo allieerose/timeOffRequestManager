@@ -4,7 +4,7 @@ by an end-date), update approval status for a request, and clear the table of al
 Uses ZeroMQ with REP/REQ socket communication, sending and receiving with json packaging. See clientTest file
 for an example of client communication with the timeOffManager. 
 
-Accepted message formats:
+## Accepted message formats:
 * Note: strings are case-insensitive, including the message-type indicating character
 * Active requests = requests that start on/after today's date (i.e., endDate >= today)
     - Create new time-off request: 
@@ -26,4 +26,21 @@ Accepted message formats:
     
     - Clear time-off request data: 
         ['CLEAR ALL DATA']
-        * This clears the database. Included for ease of testing. 
+        * This clears the database. Included for ease of testing.
+
+## Example request:
+```
+import zmq
+# establish socket connection
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect('tcp://localhost:5555')
+# send message
+message = ['C', [12345, '2024-02-18', '2024-02-26', 'vacation']]
+socket.send_json(message)
+# receive reply
+reply = socket.recv_json()
+```
+
+## UML Diagram
+![UML Diagram drawio (1)](https://github.com/allieerose/timeOffRequestManager/assets/114102628/438f4c25-cba5-4653-b15e-d239d553d8af)
