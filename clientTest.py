@@ -14,6 +14,7 @@ for request in range(10):
     message = socket.recv_json()
     print('Received reply %s [ %s ]' % (request, message))
 # extra entry w/ employeeID 1
+print('Sending request 10 ...')
 msg = ['C', [1, '2024-04-10', '2024-04-22', 'reason']]
 socket.send_json(msg)
 # reply

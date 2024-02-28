@@ -77,7 +77,7 @@ def get_employee_requests(employeeID):
 def get_all_requests(date=None):
     """
     Returns all active time off requests, optionally filtered by given date.
-    If a date is given, only requests ending before the given date are
+    If a date is given, only requests starting before the given date are
     returned.
     """
     if date is None:
@@ -90,7 +90,7 @@ def get_all_requests(date=None):
         cursor.execute('''SELECT rowid, *
                        FROM timeOffRequests
                        WHERE endDate >= date('%s')
-                       AND endDate < date(%s)
+                       AND startDate < date('%s')
                        ORDER BY startDate ASC;'''
                        % (datetime.date.today(), date))
     result = cursor.fetchall()

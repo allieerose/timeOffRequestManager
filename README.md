@@ -1,6 +1,6 @@
 Manages a small database using Sqlite3 to track time-off requests. Provides options to add requests,
 get all active requests for an employee, get all active requests for all employees (optionally filtered
-by an end-date), update approval status for a request, and clear the table of all entries. 
+by a start-date), update approval status for a request, and clear the table of all entries. 
 Uses ZeroMQ with REP/REQ socket communication, sending and receiving with json packaging. 
 Requests are sent with send_json() and replies are retrieved with recv_json(). See below for an example.
 
@@ -16,7 +16,7 @@ Requests are sent with send_json() and replies are retrieved with recv_json(). S
         ['E', employeeID: int]
         ex) ['E', 12345]
     
-    - Get all active time-off requests, optionally filtered by end-date: 
+    - Get all active time-off requests, optionally filtered by start-date: 
         ['M'] or ['M', end_date: 'YYYY-MM-DD']
         ex) ['M','2024-08-01']
     
